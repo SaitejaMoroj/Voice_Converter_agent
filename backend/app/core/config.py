@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     app_name: str = "VoxFlow API"
     database_url: str = Field(default="", validation_alias=AliasChoices("DATABASE_URL", "database_url"))
-    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174"
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,https://voice-converter-agents.onrender.com"
     model_size: str = Field(default="base", validation_alias=AliasChoices("MODEL_SIZE", "WHISPER_MODEL"))
     device: str = Field(default="cpu", validation_alias=AliasChoices("DEVICE", "WHISPER_DEVICE"))
     compute_type: str = Field(default="int8", validation_alias=AliasChoices("COMPUTE_TYPE", "WHISPER_COMPUTE_TYPE"))

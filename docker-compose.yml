@@ -18,7 +18,7 @@ services:
     build: ./backend
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-voxflow}:${POSTGRES_PASSWORD:-change-me}@db:5432/${POSTGRES_DB:-voxflow}
-      CORS_ORIGINS: http://localhost:5173
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174
       MODEL_SIZE: ${MODEL_SIZE:-base}
       DEVICE: ${DEVICE:-cpu}
       COMPUTE_TYPE: ${COMPUTE_TYPE:-int8}

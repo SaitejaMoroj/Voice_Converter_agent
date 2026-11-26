@@ -20,7 +20,8 @@ export type StreamEvent =
   | { type: 'error'; message: string; retryable?: boolean }
 
 const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-const API_URL = import.meta.env.VITE_API_URL
+const PRODUCTION_API_URL = 'https://voice-converter-agent.onrender.com/api/v1'
+const API_URL = import.meta.env.VITE_API_URL?.trim()
 const deriveSocketUrl = (apiUrl: string): string => {
   const parsed = new URL(apiUrl, window.location.origin)
   parsed.protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -34,7 +35,7 @@ const SOCKET_URL = import.meta.env.VITE_WS_URL
     ? deriveSocketUrl(API_URL)
     : isLocalHost
       ? 'ws://127.0.0.1:8000/ws/transcription'
-      : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/transcription`)
+      : deriveSocketUrl(PRODUCTION_API_URL))
 const TARGET_SAMPLE_RATE = 16_000
 const MAX_BUFFERED_BYTES = 512 * 1024
 const START_TIMEOUT_MS = 90_000
