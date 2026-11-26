@@ -410,6 +410,7 @@ class StreamingTranscriptionSession:
 
 async def run_transcription_session(websocket: WebSocket) -> None:
     await websocket.accept()
+    logger.info("Transcription WebSocket connected", extra={"path": websocket.url.path})
     settings = get_settings()
     persistence = TranscriptionSessionService()
     transcription_id: UUID | None = None
@@ -460,7 +461,9 @@ async def run_transcription_session(websocket: WebSocket) -> None:
             "saved_at": record.updated_at.isoformat(),
         })
         await websocket.send_json({"type": "status", "session_id": session_id, "status": "loading_model"})
+        logger.info("Loading speech recognition model", extra={"session_id": session_id})
         service = await asyncio.to_thread(TranscriptionService)
+        logger.info("Speech recognition model ready", extra={"session_id": session_id})
         await persistence.set_status(record.id, SessionStatus.RECORDING)
         stream_session = StreamingTranscriptionSession(
             websocket,
@@ -558,6 +561,7 @@ async def run_transcription_session(websocket: WebSocket) -> None:
             await stream_session.mark_failed()
         await _send_error(websocket, "Malformed JSON start message.", 1008)
     except WebSocketDisconnect:
+        logger.info("Transcription WebSocket disconnected", extra={"session_id": transcription_id and str(transcription_id)})
         if stream_session:
             await stream_session.mark_failed()
         elif transcription_id:

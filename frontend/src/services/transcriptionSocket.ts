@@ -20,13 +20,24 @@ export type StreamEvent =
   | { type: 'error'; message: string; retryable?: boolean }
 
 const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+const API_URL = import.meta.env.VITE_API_URL
+const deriveSocketUrl = (apiUrl: string): string => {
+  const parsed = new URL(apiUrl, window.location.origin)
+  parsed.protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:'
+  parsed.pathname = '/ws/transcription'
+  parsed.search = ''
+  parsed.hash = ''
+  return parsed.toString()
+}
 const SOCKET_URL = import.meta.env.VITE_WS_URL
-  ?? (isLocalHost
-    ? 'ws://127.0.0.1:8000/ws/transcription'
-    : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/transcription`)
+  ?? (API_URL
+    ? deriveSocketUrl(API_URL)
+    : isLocalHost
+      ? 'ws://127.0.0.1:8000/ws/transcription'
+      : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/transcription`)
 const TARGET_SAMPLE_RATE = 16_000
 const MAX_BUFFERED_BYTES = 512 * 1024
-const START_TIMEOUT_MS = 25_000
+const START_TIMEOUT_MS = 90_000
 
 export class LiveTranscription {
   private socket?: WebSocket
@@ -104,14 +115,14 @@ export class LiveTranscription {
             channels: 1,
           }))
         }
-        this.socket!.onerror = () => finish(new Error('Could not connect to the transcription service.'))
-        this.socket!.onclose = () => {
+        this.socket!.onerror = () => finish(new Error(`Could not connect to the transcription service at ${SOCKET_URL}.`))
+        this.socket!.onclose = (event) => {
           this.releaseAudio()
           if (this.state !== 'stopping' && this.state !== 'idle') {
             this.state = 'idle'
             this.emit({ type: 'error', message: 'The transcription connection was closed.' })
           }
-          finish(new Error('The transcription connection closed before it was ready.'))
+          finish(new Error(`The transcription connection closed before it was ready (code ${event.code}${event.reason ? `: ${event.reason}` : ''}).`))
         }
         this.socket!.onmessage = (message) => {
           let event: StreamEvent
