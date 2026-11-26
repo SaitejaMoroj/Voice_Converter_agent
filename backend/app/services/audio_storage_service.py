@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -19,6 +20,8 @@ class AudioStorageService:
 
     def __init__(self, storage_dir: str | Path | None = None) -> None:
         configured_dir = storage_dir or get_settings().audio_storage_dir
+        if os.getenv("VERCEL") == "1":
+            configured_dir = "/tmp/voxflow/audio"
         root = Path(configured_dir).expanduser()
         self.root = root.resolve()
 

@@ -17,11 +17,24 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
-    await engine.dispose()
+    if engine is not None:
+        await engine.dispose()
 
 
 app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], allow_headers=["*"])
+
+
+@app.get("/", tags=["health"])
+async def root() -> dict[str, str]:
+    return {"status": "ok", "service": settings.app_name}
+
+
+@app.get("/health", tags=["health"])
+async def health() -> dict[str, str]:
+    return {"status": "alive", "service": settings.app_name}
+
+
 app.include_router(router)
 app.include_router(transcription_router)
 app.include_router(websocket_router)

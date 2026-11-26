@@ -37,6 +37,26 @@ Render may provide `postgres://` or `postgresql://`; VoxFlow normalizes these va
 
 Deploy `backend/` as the web service root. The Docker startup command runs Alembic migrations and listens on Render's `PORT` value.
 
+## Vercel deployment
+
+Set the Vercel Project Root Directory to `backend`. The backend entrypoint is `app/main.py`, with `app` exported from that module. `backend/vercel.json` routes requests to the FastAPI app and configures the Python function.
+
+Required environment variable:
+
+```text
+DATABASE_URL=postgresql+asyncpg://username:password@host:5432/database
+```
+
+Optional variables include `CORS_ORIGINS`, `MODEL_SIZE`, `DEVICE`, `COMPUTE_TYPE`, `DEFAULT_LANGUAGE`, and the transcription limits documented above. Run PostgreSQL migrations outside the serverless function before deployment:
+
+```bash
+cd backend
+alembic upgrade head
+vercel deploy --prod
+```
+
+Vercel supports WebSocket endpoints, but long-lived transcription sessions remain subject to function duration limits. The faster-whisper model downloads and local `/tmp` audio storage are ephemeral and may not provide the same persistence or startup behavior as the Docker/Render deployment.
+
 ## Backend tests
 
 From `backend/`, install `requirements-test.txt` and run `python -m pytest tests -q`. The endpoint suite uses an isolated SQLite database for fast request/response coverage; run the Alembic migrations against PostgreSQL as part of deployment or integration testing.
