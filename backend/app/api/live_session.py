@@ -204,12 +204,14 @@ class StreamingTranscriptionSession:
         if len(audio) < 2:
             return
         await self.send_status(SessionStatus.PROCESSING.value)
+        logger.info("Processing audio window", extra={"session_id": self.session_id, "window_start": round(window_start, 2), "bytes": len(audio), "final": final})
         result: SpeechResult = await self.service.transcribe_pcm16(
             audio,
             sample_rate=self.sample_rate,
             language_override=self.language,
         )
         self.processing_time += result.processing_time
+        logger.info("Audio window processed", extra={"session_id": self.session_id, "processing_seconds": round(result.processing_time, 3), "detected_language": result.detected_language})
         if result.detected_language:
             self.detected_language = result.detected_language
 
@@ -288,6 +290,7 @@ class StreamingTranscriptionSession:
     async def receive_audio_chunk(self, metadata: dict, audio: bytes) -> None:
         sequence = metadata.get("sequence")
         byte_length = metadata.get("byte_length")
+        logger.debug("Received WebSocket audio chunk", extra={"session_id": self.session_id, "sequence": sequence, "bytes": len(audio)})
         if type(sequence) is not int or sequence != self.next_sequence:
             await _send_error(self.websocket, "Audio chunk sequence is invalid.", 1008)
             return

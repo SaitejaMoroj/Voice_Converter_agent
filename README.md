@@ -29,8 +29,8 @@ CORS_ORIGINS=https://your-frontend.onrender.com
 For separate frontend and backend Render services, set these frontend build/environment variables:
 
 ```text
-VITE_API_URL=https://your-backend.onrender.com/api/v1
-VITE_WS_URL=wss://your-backend.onrender.com/ws/transcription
+VITE_API_URL=https://voice-converter-agent-s1ru.onrender.com/api/v1
+VITE_WS_URL=wss://voice-converter-agent-s1ru.onrender.com/ws/transcription
 ```
 
 Render may provide `postgres://` or `postgresql://`; VoxFlow normalizes these values to `postgresql+asyncpg://` automatically. Do not set `psycopg2` in the async application configuration.

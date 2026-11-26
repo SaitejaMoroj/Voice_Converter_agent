@@ -20,7 +20,7 @@ export type StreamEvent =
   | { type: 'error'; message: string; retryable?: boolean }
 
 const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-const PRODUCTION_API_URL = 'https://voice-converter-agent.onrender.com/api/v1'
+const PRODUCTION_API_URL = 'https://voice-converter-agent-s1ru.onrender.com/api/v1'
 const API_URL = import.meta.env.VITE_API_URL?.trim()
 const deriveSocketUrl = (apiUrl: string): string => {
   const parsed = new URL(apiUrl, window.location.origin)

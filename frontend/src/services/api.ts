@@ -1,7 +1,7 @@
 import type { Transcript, TranscriptList, TranscriptSegment, TranscriptionPage, TranscriptionStatistics } from '../types/transcript'
 
 const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-const PRODUCTION_API_URL = 'https://voice-converter-agent.onrender.com/api/v1'
+const PRODUCTION_API_URL = 'https://voice-converter-agent-s1ru.onrender.com/api/v1'
 const API_URL = import.meta.env.VITE_API_URL?.trim()
   || (isLocalHost ? 'http://127.0.0.1:8000/api/v1' : PRODUCTION_API_URL)
 const API_ROOT = API_URL.replace(/\/v1\/?$/, '')
