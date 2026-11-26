@@ -19,10 +19,18 @@ From `frontend/`, run `npm install` and `npm run dev`. This starts both the Fast
 
 ## Render deployment
 
-Set the Render environment variable:
+Set these Render backend environment variables:
 
 ```text
 DATABASE_URL=postgresql+asyncpg://username:password@host:5432/database
+CORS_ORIGINS=https://your-frontend.onrender.com
+```
+
+For separate frontend and backend Render services, set these frontend build/environment variables:
+
+```text
+VITE_API_URL=https://your-backend.onrender.com/api/v1
+VITE_WS_URL=wss://your-backend.onrender.com/ws/transcription
 ```
 
 Render may provide `postgres://` or `postgresql://`; VoxFlow normalizes these values to `postgresql+asyncpg://` automatically. Do not set `psycopg2` in the async application configuration.

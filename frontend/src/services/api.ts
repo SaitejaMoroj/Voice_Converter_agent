@@ -1,6 +1,8 @@
 import type { Transcript, TranscriptList, TranscriptSegment, TranscriptionPage, TranscriptionStatistics } from '../types/transcript'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000/api/v1'
+const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+const API_URL = import.meta.env.VITE_API_URL
+  ?? (isLocalHost ? 'http://127.0.0.1:8000/api/v1' : `${window.location.origin}/api/v1`)
 const API_ROOT = API_URL.replace(/\/v1\/?$/, '')
 
 interface ApiTranscription {

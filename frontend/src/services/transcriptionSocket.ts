@@ -19,7 +19,11 @@ export type StreamEvent =
   | { type: 'recording_ready'; audio_url: string; audio_blob: Blob }
   | { type: 'error'; message: string; retryable?: boolean }
 
-const SOCKET_URL = import.meta.env.VITE_WS_URL ?? 'ws://127.0.0.1:8000/ws/transcription'
+const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+const SOCKET_URL = import.meta.env.VITE_WS_URL
+  ?? (isLocalHost
+    ? 'ws://127.0.0.1:8000/ws/transcription'
+    : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/transcription`)
 const TARGET_SAMPLE_RATE = 16_000
 const MAX_BUFFERED_BYTES = 512 * 1024
 const START_TIMEOUT_MS = 25_000
