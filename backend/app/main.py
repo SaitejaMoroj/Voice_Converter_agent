@@ -1,3 +1,5 @@
+import asyncio
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -10,12 +12,20 @@ from app.core.config import get_settings
 from app.core.database import engine
 from app.models import Transcription
 from app.core.errors import register_error_handlers
+from app.services.speech_engine_factory import SpeechEngineFactory
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    try:
+        logger.info("Preloading faster-whisper model model_size=%s device=%s", settings.model_size, settings.device)
+        await asyncio.to_thread(SpeechEngineFactory.create)
+        logger.info("faster-whisper model ready")
+    except Exception:
+        logger.exception("faster-whisper model preload failed; it will retry on the first transcription")
     yield
     if engine is not None:
         await engine.dispose()

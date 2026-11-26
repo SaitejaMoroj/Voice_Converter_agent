@@ -136,8 +136,9 @@ def test_speech_configuration_reads_environment(monkeypatch):
 
 def test_faster_whisper_returns_segments_and_detected_language(monkeypatch):
     class FakeWhisperModel:
-        def __init__(self, model_size, device, compute_type):
+        def __init__(self, model_size, device, compute_type, cpu_threads):
             assert (model_size, device, compute_type) == ("small", "cpu", "int8")
+            assert 1 <= cpu_threads <= 4
 
         def transcribe(self, audio, **kwargs):
             assert kwargs["language"] == "hi"

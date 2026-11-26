@@ -3,6 +3,7 @@ import json
 import logging
 import re
 import unicodedata
+from datetime import datetime, timezone
 from dataclasses import asdict
 from uuid import UUID, uuid4
 
@@ -278,6 +279,7 @@ class StreamingTranscriptionSession:
             await _send_error(self.websocket, "Session audio duration limit exceeded.", 1008)
             return
 
+        logger.info("[timing] Audio received ts=%s session_id=%s bytes=%d", datetime.now(timezone.utc).isoformat(), self.session_id, len(audio))
         self.received_bytes += len(audio)
         self.audio_duration += len(audio) / (self.sample_rate * 2)
         self.buffer.extend(audio)
@@ -349,8 +351,6 @@ class StreamingTranscriptionSession:
             await _send_error(self.websocket, "Session cannot be stopped in the current state.", 1008)
             return False
         self.status = SessionStatus.PROCESSING.value
-        if self.persisted_status in {SessionStatus.RECORDING, SessionStatus.PAUSED}:
-            await self.set_persisted_status(SessionStatus.PROCESSING)
         await self.send_status(SessionStatus.PROCESSING.value)
         if self.buffer:
             await self._flush_tail()
@@ -369,6 +369,8 @@ class StreamingTranscriptionSession:
         }
         await self.send_status("saving")
         self.completion_pending = True
+        database_started_at = asyncio.get_running_loop().time()
+        logger.info("[timing] Database saving started ts=%s session_id=%s", datetime.now(timezone.utc).isoformat(), self.session_id)
         try:
             record = await self.persistence.complete(
                 self.transcription_id,
@@ -387,6 +389,8 @@ class StreamingTranscriptionSession:
                 "retryable": True,
             })
             return False
+        logger.info("[timing] Database saving completed ts=%s session_id=%s elapsed_seconds=%.3f", datetime.now(timezone.utc).isoformat(), self.session_id, asyncio.get_running_loop().time() - database_started_at)
+        logger.info("[timing] Total transcription processing completed ts=%s session_id=%s elapsed_seconds=%.3f", datetime.now(timezone.utc).isoformat(), self.session_id, self.processing_time)
         self.persisted_status = SessionStatus.COMPLETED
         self.completion_pending = False
         await self.websocket.send_json({"type": "final_transcript", **structured})

@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import time
+from datetime import datetime, timezone
 from dataclasses import replace
 
 from app.core.config import Settings, get_settings
@@ -32,7 +33,10 @@ class TranscriptionService:
     ) -> SpeechResult:
         started_at = time.perf_counter()
         try:
+            conversion_started_at = time.perf_counter()
             processed = self.audio_processor.process_pcm16(audio, sample_rate)
+            logger.info("[timing] Audio conversion completed ts=%s elapsed_seconds=%.3f samples=%d", datetime.now(timezone.utc).isoformat(), time.perf_counter() - conversion_started_at, len(processed.samples))
+            logger.info("[timing] Noise enhancement completed ts=%s elapsed_seconds=0.000 mode=browser_noise_suppression_or_none", datetime.now(timezone.utc).isoformat())
             language = language_override
             if language == "auto":
                 language = None

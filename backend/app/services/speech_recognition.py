@@ -1,6 +1,8 @@
 import logging
+import os
 import threading
 import time
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -14,7 +16,13 @@ class FasterWhisperEngine:
         try:
             from faster_whisper import WhisperModel
 
-            self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+            cpu_threads = max(1, min(4, os.cpu_count() or 1))
+            self.model = WhisperModel(
+                model_size,
+                device=device,
+                compute_type=compute_type,
+                cpu_threads=cpu_threads,
+            )
             self._inference_lock = threading.Lock()
         except Exception as exc:
             logger.exception("Unable to load faster-whisper model", extra={"model_size": model_size, "device": device})
@@ -32,12 +40,14 @@ class FasterWhisperEngine:
         if not enable_language_detection and selected_language is None:
             selected_language = "en"
         try:
+            logger.info("[timing] Whisper inference started ts=%s samples=%d language=%s", datetime.now(timezone.utc).isoformat(), len(audio), selected_language or "auto")
             with self._inference_lock:
                 segments_iter, info = self.model.transcribe(
                     audio,
                     language=selected_language,
                     vad_filter=True,
-                    beam_size=3,
+                    beam_size=1,
+                    best_of=1,
                     temperature=0.0,
                     condition_on_previous_text=False,
                     no_speech_threshold=0.6,
@@ -54,6 +64,8 @@ class FasterWhisperEngine:
                     for segment in segments_iter
                     if segment.text.strip()
                 ]
+            elapsed = time.perf_counter() - started_at
+            logger.info("[timing] Whisper inference completed ts=%s elapsed_seconds=%.3f segments=%d", datetime.now(timezone.utc).isoformat(), elapsed, len(segments))
             return SpeechResult(
                 transcript_text=" ".join(segment.text for segment in segments).strip(),
                 detected_language=info.language,
