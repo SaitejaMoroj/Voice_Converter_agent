@@ -12,14 +12,14 @@ def normalize_database_url(database_url: str) -> str:
         return ""
 
     if value.startswith("postgres://"):
-        value = "postgresql://" + value[len("postgres://"):] 
+        value = "postgresql://" + value[len("postgres://"):]
 
     if value.startswith("postgresql+psycopg2://"):
-        value = "postgresql+asyncpg://" + value[len("postgresql+psycopg2://"):] 
+        value = "postgresql+asyncpg://" + value[len("postgresql+psycopg2://"):]
     elif value.startswith("postgresql+psycopg://"):
-        value = "postgresql+asyncpg://" + value[len("postgresql+psycopg://"):] 
+        value = "postgresql+asyncpg://" + value[len("postgresql+psycopg://"):]
     elif value.startswith("postgresql://"):
-        value = "postgresql+asyncpg://" + value[len("postgresql://"):] 
+        value = "postgresql+asyncpg://" + value[len("postgresql://"):]
 
     if not value.startswith(("postgresql+asyncpg://", "sqlite+aiosqlite://")):
         return value
