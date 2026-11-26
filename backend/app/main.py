@@ -7,7 +7,7 @@ from app.api.routes import router
 from app.api.transcript_api import router as transcription_router
 from app.api.live_socket import router as websocket_router
 from app.core.config import get_settings
-from app.core.database import engine, Base
+from app.core.database import engine
 from app.models import Transcription
 from app.core.errors import register_error_handlers
 
@@ -16,9 +16,6 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if get_settings().database_url.startswith("sqlite"):
-        async with engine.begin() as connection:
-            await connection.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
 

@@ -1,13 +1,53 @@
 from functools import lru_cache
 
 from pydantic import AliasChoices, Field
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def normalize_database_url(database_url: str) -> str:
+    """Return an async SQLAlchemy URL without exposing or rewriting credentials."""
+    value = database_url.strip()
+    if not value:
+        return ""
+
+    if value.startswith("postgres://"):
+        value = "postgresql://" + value[len("postgres://"):] 
+
+    if value.startswith("postgresql+psycopg2://"):
+        value = "postgresql+asyncpg://" + value[len("postgresql+psycopg2://"):] 
+    elif value.startswith("postgresql+psycopg://"):
+        value = "postgresql+asyncpg://" + value[len("postgresql+psycopg://"):] 
+    elif value.startswith("postgresql://"):
+        value = "postgresql+asyncpg://" + value[len("postgresql://"):] 
+
+    if not value.startswith(("postgresql+asyncpg://", "sqlite+aiosqlite://")):
+        return value
+
+    if not value.startswith("postgresql+asyncpg://"):
+        return value
+
+    parts = urlsplit(value)
+    if not parts.query:
+        return value
+
+    query = []
+    ssl_required = False
+    for key, item in parse_qsl(parts.query, keep_blank_values=True):
+        if key.lower() == "sslmode":
+            ssl_required = item.lower() in {"require", "verify-ca", "verify-full"}
+        elif key.lower() != "ssl":
+            query.append((key, item))
+    if ssl_required:
+        query.append(("ssl", "true"))
+
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     app_name: str = "VoxFlow API"
-    database_url: str = "sqlite+aiosqlite:///./var/voxflow.db"
+    database_url: str = Field(default="", validation_alias=AliasChoices("DATABASE_URL", "database_url"))
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174"
     model_size: str = Field(default="base", validation_alias=AliasChoices("MODEL_SIZE", "WHISPER_MODEL"))
     device: str = Field(default="cpu", validation_alias=AliasChoices("DEVICE", "WHISPER_DEVICE"))

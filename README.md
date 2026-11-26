@@ -15,7 +15,19 @@ Copy `.env.example` to `.env`, change `POSTGRES_PASSWORD`, and run `docker compo
 
 ## Local development
 
-From `frontend/`, run `npm install` and `npm run dev`. This starts both the FastAPI backend on port `8000` and Vite frontend on port `5174`; local data uses SQLite unless `DATABASE_URL` is set. To use PostgreSQL with Docker, copy `.env.example` to `.env`, change `POSTGRES_PASSWORD`, and run `docker compose up --build`.
+From `frontend/`, run `npm install` and `npm run dev`. This starts both the FastAPI backend on port `8000` and Vite frontend on port `5174`. Set `DATABASE_URL` to the PostgreSQL connection URL before starting the backend.
+
+## Render deployment
+
+Set the Render environment variable:
+
+```text
+DATABASE_URL=postgresql+asyncpg://username:password@host:5432/database
+```
+
+Render may provide `postgres://` or `postgresql://`; VoxFlow normalizes these values to `postgresql+asyncpg://` automatically. Do not set `psycopg2` in the async application configuration.
+
+Deploy `backend/` as the web service root. The Docker startup command runs Alembic migrations and listens on Render's `PORT` value.
 
 ## Backend tests
 

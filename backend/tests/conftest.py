@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.pool import NullPool
 
 os.environ["DATABASE_URL"] = "sqlite+aiosqlite://"
+os.environ["VOXFLOW_TEST_SQLITE"] = "1"
 
 from app.core.database import Base, get_session
 from app.main import app
