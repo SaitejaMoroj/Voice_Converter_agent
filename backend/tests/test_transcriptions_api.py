@@ -25,6 +25,32 @@ def test_health_endpoints(client):
     }
 
 
+def test_cors_preflight_for_vercel_and_reject_unrelated_origin(client):
+    for origin in (
+        "https://voice-converter-agent.vercel.app",
+        "https://voice-converter-agent-git-main-example.vercel.app",
+    ):
+        response = client.options(
+            "/api/v1/transcripts?limit=4&offset=0",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "GET",
+                "Access-Control-Request-Headers": "content-type,authorization",
+            },
+        )
+        assert response.status_code == 200
+        assert response.headers["access-control-allow-origin"] == origin
+
+    unrelated = client.options(
+        "/api/health",
+        headers={
+            "Origin": "https://unrelated-example.vercel.app",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert unrelated.status_code == 400
+
+
 def test_create_get_update_patch_and_delete(client):
     created = create_transcription(
         client,

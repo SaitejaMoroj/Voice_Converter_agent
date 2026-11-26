@@ -23,8 +23,11 @@ Set these Render backend environment variables:
 
 ```text
 DATABASE_URL=postgresql+asyncpg://username:password@host:5432/database
-CORS_ORIGINS=https://your-frontend.onrender.com
+CORS_ORIGINS=https://voice-converter-agent.vercel.app,https://your-frontend.onrender.com
+CORS_ORIGIN_REGEX=^https://voice-converter-agent(?:-[a-z0-9-]+)?\.vercel\.app$
 ```
+
+Redeploy the Render service after changing environment variables. The project accepts the exact Vercel production origin and preview deployments matching the `voice-converter-agent` Vercel project name.
 
 For separate frontend and backend Render services, set these frontend build/environment variables:
 
