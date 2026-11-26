@@ -1,0 +1,47 @@
+.history-audio-unavailable {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  color: var(--text-dim);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.history-audio-player {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+.history-audio-player audio { display: none; }
+
+.history-audio-play {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  flex: none;
+  place-items: center;
+  border: 1px solid #9474ff55;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #805de9, #517be1);
+  color: #fff;
+}
+
+.history-audio-play:hover { filter: brightness(1.13); }
+.history-audio-timeline { position: relative; display: flex; height: 28px; min-width: 45px; flex: 1; align-items: center; }
+.history-waveform { display: flex; width: 100%; height: 25px; align-items: center; justify-content: space-between; gap: 2px; pointer-events: none; }
+.history-waveform span { width: 3px; min-width: 2px; flex: 1; max-width: 5px; border-radius: 3px; background: #7885a1; opacity: .7; }
+.history-waveform span.passed { background: #bb9cff; opacity: 1; }
+.history-audio-seek { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.history-audio-time { flex: none; color: var(--text-secondary); font: 9px var(--mono); white-space: nowrap; }
+.history-audio-options { position: relative; flex: none; }
+.history-audio-options summary { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid var(--panel-line); border-radius: 7px; color: var(--text-secondary); list-style: none; cursor: pointer; }
+.history-audio-options summary::-webkit-details-marker { display: none; }
+.audio-options-menu { position: absolute; z-index: 20; top: 31px; right: 0; display: grid; width: 150px; gap: 9px; padding: 11px; border: 1px solid var(--panel-line); border-radius: 8px; background: var(--panel-raised); box-shadow: 0 12px 30px #0005; color: var(--text-secondary); font-size: 9px; }
+.audio-options-menu label { display: grid; gap: 5px; }
+.audio-options-menu select { height: 27px; padding: 0 6px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--panel); color: var(--text-primary); font-size: 10px; }
+.audio-options-menu input { width: 100%; accent-color: var(--accent-purple); }
+.history-audio-error { position: absolute; top: 30px; left: 0; z-index: 2; color: var(--accent-red); font-size: 9px; white-space: nowrap; }

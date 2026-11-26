@@ -1,0 +1,61 @@
+.transcript-segments {
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.transcript-segments h2 {
+  margin: 0 0 8px;
+  font: 500 10px var(--mono);
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.transcript-segments ol {
+  display: grid;
+  gap: 1px;
+  max-height: 220px;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.transcript-segments li {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) auto auto auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.transcript-segments time,
+.segment-language,
+.segment-metric {
+  color: var(--muted);
+  font: 10px var(--mono);
+  white-space: nowrap;
+}
+
+.segment-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.segment-language {
+  color: var(--ink-soft);
+}
+
+@media (max-width: 640px) {
+  .transcript-segments li {
+    grid-template-columns: 78px minmax(0, 1fr) auto;
+    gap: 6px 8px;
+  }
+
+  .segment-metric {
+    grid-row: 2;
+  }
+}
